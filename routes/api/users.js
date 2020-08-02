@@ -8,6 +8,8 @@ const keys = require("../../config/keys");
 const validateRegisterInput = require("../../validators/register");
 const validateLoginInput = require("../../validators/login");
 const validateUserDeleteInput = require("../../validators/user-delete");
+const validateUserReadInput = require("../../validators/user-read");
+const validateUserUpdateInput = require("../../validators/user-update");
 
 // Load User model
 const User = require("../../models/User");
@@ -103,7 +105,33 @@ router.post("/login", (req, res) => {
   });
 });
 
-// @route DELETE api/users/:email
+// @route GET api/users/
+// @desc GET given user
+// @access Public
+router.get("/", (req, res) => {
+  // Form validation
+  const { errors, isValid } = validateUserReadInput(req.body); // Check validation
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const email = req.body.email;
+
+  // Find user by email
+  User.findOne({ email }).then((user) => {
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ emailnotfound: "Email not found" });
+    }
+
+    return res.status(200).json({
+      user,
+    });
+  });
+});
+
+// @route DELETE api/users/
 // @desc Delete given user
 // @access Public
 router.delete("/", (req, res) => {
@@ -131,6 +159,61 @@ router.delete("/", (req, res) => {
         User.deleteOne({ email }).then((user) => {
           return res.status(200).json({
             success: true,
+          });
+        });
+      } else {
+        return res
+          .status(400)
+          .json({ passwordincorrect: "Password incorrect" });
+      }
+    });
+  });
+});
+
+// @route PUT api/users/
+// @desc Update user
+// @access Public
+router.put("/", (req, res) => {
+  // Form validation
+  const { errors, isValid } = validateUserUpdateInput(req.body);
+
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const update = {
+    name: req.body.name,
+    email: req.body.newEmail,
+    password: req.body.newPassword,
+  };
+
+  // Find user by email
+  User.findOne({ email }).then((user) => {
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ emailnotfound: "Email not found" });
+    }
+
+    // Check password
+    bcrypt.compare(password, user.password).then((isMatch) => {
+      if (isMatch) {
+        // User matched
+        // Hash password before saving in database
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(update.password, salt, (err, hash) => {
+            if (err) throw err;
+            update.password = hash;
+            User.findOneAndUpdate({ email: req.body.email }, update).then(
+              (user) => {
+                return res.status(200).json({
+                  success: true,
+                });
+              }
+            );
           });
         });
       } else {
