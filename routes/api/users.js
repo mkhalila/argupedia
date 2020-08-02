@@ -7,6 +7,7 @@ const keys = require("../../config/keys");
 // Load input validation
 const validateRegisterInput = require("../../validators/register");
 const validateLoginInput = require("../../validators/login");
+const validateUserDeleteInput = require("../../validators/user-delete");
 
 // Load User model
 const User = require("../../models/User");
@@ -93,6 +94,45 @@ router.post("/login", (req, res) => {
             });
           }
         );
+      } else {
+        return res
+          .status(400)
+          .json({ passwordincorrect: "Password incorrect" });
+      }
+    });
+  });
+});
+
+// @route DELETE api/users/:email
+// @desc Delete given user
+// @access Public
+router.delete("/", (req, res) => {
+  // Form validation
+  const { errors, isValid } = validateUserDeleteInput(req.body); // Check validation
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // Find user by email
+  User.findOne({ email }).then((user) => {
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ emailnotfound: "Email not found" });
+    }
+
+    // Check password
+    bcrypt.compare(password, user.password).then((isMatch) => {
+      if (isMatch) {
+        // User matched
+        User.deleteOne({ email }).then((user) => {
+          return res.status(200).json({
+            success: true,
+          });
+        });
       } else {
         return res
           .status(400)
