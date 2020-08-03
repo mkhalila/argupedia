@@ -48,4 +48,7 @@ actionArgumentSchema.methods.summary = () => {
   );
 };
 
-ActionArgument = Argument.discriminator("ActionArgument", actionArgumentSchema);
+module.exports = ActionArgument = Argument.discriminator(
+  "ActionArgument",
+  actionArgumentSchema
+);
