@@ -14,9 +14,7 @@ const validateUserUpdateInput = require("../../validators/user-update");
 // Load User model
 const User = require("../../models/User");
 
-// @route POST api/users/register
-// @desc Register user
-// @access Public
+// Create/Register a new user
 router.post("/register", (req, res) => {
   // Form validation
   const { errors, isValid } = validateRegisterInput(req.body);
@@ -51,9 +49,7 @@ router.post("/register", (req, res) => {
   });
 });
 
-// @route POST api/users/login
-// @desc Login user and return JWT token
-// @access Public
+// Authenticate a user and return login token
 router.post("/login", (req, res) => {
   // Form validation
   const { errors, isValid } = validateLoginInput(req.body); // Check validation
@@ -105,9 +101,7 @@ router.post("/login", (req, res) => {
   });
 });
 
-// @route GET api/users/
-// @desc GET given user
-// @access Public
+// Get a single user
 router.get("/", (req, res) => {
   // Form validation
   const { errors, isValid } = validateUserReadInput(req.body); // Check validation
@@ -131,9 +125,7 @@ router.get("/", (req, res) => {
   });
 });
 
-// @route DELETE api/users/
-// @desc Delete given user
-// @access Public
+// Delete user
 router.delete("/", (req, res) => {
   // Form validation
   const { errors, isValid } = validateUserDeleteInput(req.body); // Check validation
@@ -170,9 +162,7 @@ router.delete("/", (req, res) => {
   });
 });
 
-// @route PUT api/users/
-// @desc Update user
-// @access Public
+// Update user
 router.put("/", (req, res) => {
   // Form validation
   const { errors, isValid } = validateUserUpdateInput(req.body);
