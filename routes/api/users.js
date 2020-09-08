@@ -125,6 +125,30 @@ router.get("/", (req, res) => {
   });
 });
 
+// Get a single user
+router.get("/id", (req, res) => {
+  // Form validation
+  // const { errors, isValid } = validateUserReadInput(req.body); // Check validation
+
+  // if (!isValid) {
+  //   return res.status(400).json(errors);
+  // }
+
+  const id = req.query.id;
+
+  // Find user by id
+  User.findById(id).then((user) => {
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ emailnotfound: "Email not found" });
+    }
+
+    return res.status(200).json({
+      user,
+    });
+  });
+});
+
 // Delete user
 router.delete("/", (req, res) => {
   // Form validation
@@ -213,6 +237,10 @@ router.put("/", (req, res) => {
       }
     });
   });
+});
+
+router.get("/all", (req, res) => {
+  User.find().then((users) => res.send(users));
 });
 
 module.exports = router;

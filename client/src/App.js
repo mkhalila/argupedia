@@ -11,6 +11,9 @@ import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import PrivateRoute from "./components/private-route/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
+import DiscussionForm from "./components/DiscussionForm";
+import DiscussionView from "./components/DiscussionView";
+import AttackForm from "./components/AttackForm";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -39,9 +42,16 @@ class App extends Component {
             <Route exact path="/" component={Landing} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
+            <Route exact path="/discussion" component={DiscussionView} />
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
             </Switch>
+            <PrivateRoute
+              exact
+              path="/discussion/new"
+              component={DiscussionForm}
+            />
+            <PrivateRoute exact path="/attack" component={AttackForm} />
           </div>
         </Router>
       </Provider>

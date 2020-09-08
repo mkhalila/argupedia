@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
-const User = require("./User");
 
 const Schema = mongoose.Schema; // Create Schema
 
-const Argument = new Schema(
+let Argument = new Schema(
   {
     user: {
-      type: User,
+      type: String,
       required: true,
     },
   },

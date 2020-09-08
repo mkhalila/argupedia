@@ -3,31 +3,28 @@ const Argument = require("./Argument");
 
 const Schema = mongoose.Schema; // Create Schema
 
-const actionArgumentSchema = new Schema(
-  {
-    R: {
-      type: String,
-      required: true,
-    },
-    A: {
-      type: String,
-      required: true,
-    },
-    S: {
-      type: String,
-      required: true,
-    },
-    G: {
-      type: String,
-      required: true,
-    },
-    V: {
-      type: String,
-      required: true,
-    },
+const actionArgumentSchema = new Schema({
+  R: {
+    type: String,
+    required: true,
   },
-  options
-);
+  A: {
+    type: String,
+    required: true,
+  },
+  S: {
+    type: String,
+    required: true,
+  },
+  G: {
+    type: String,
+    required: true,
+  },
+  V: {
+    type: String,
+    required: true,
+  },
+});
 
 actionArgumentSchema.methods.criticalQuestions = () => {
   return [
@@ -50,5 +47,6 @@ actionArgumentSchema.methods.summary = () => {
 
 module.exports = ActionArgument = Argument.discriminator(
   "ActionArgument",
-  actionArgumentSchema
+  actionArgumentSchema,
+  { discriminatorKey: "kind" }
 );
