@@ -10,14 +10,40 @@ export class DiscussionView extends Component {
     super();
     this.state = {
       discussion: {},
+      display: [],
     };
   }
 
   componentDidMount() {
-    this.setState({
-      discussion: this.props.location.state.discussion,
-    });
+    this.setState(
+      {
+        discussion: this.props.location.state.discussion,
+      },
+      () => {
+        const discussionArgument = this.state.discussion.argument;
+        const attackRelation = this.state.discussion.attackRelation;
+        const display = this.attackersOfVictim(
+          attackRelation,
+          discussionArgument
+        );
+        console.log(display);
+        this.setState({ display });
+      }
+    );
   }
+
+  attackersOfVictim = (attackRelation, victim) => {
+    const attackers = Object.keys(attackRelation);
+    const attackersOf = [];
+    for (let i = 0; i < attackers.length; ++i) {
+      const attacker = attackers[i];
+      const v = attackRelation[attacker];
+      if (v === victim) {
+        attackersOf.push(attacker);
+      }
+    }
+    return attackersOf;
+  };
 
   render() {
     console.log(this.props.auth);
@@ -30,14 +56,18 @@ export class DiscussionView extends Component {
       view = (
         <div className="container">
           <DiscussionCard discussion={this.state.discussion} />
-          {this.state.discussion.counterArguments.map((counterArgument) => (
-            <CounterArgumentCard
-              key={counterArgument}
-              discussion={this.state.discussion._id}
-              counterArgument={counterArgument}
-              isAuthenticated={this.props.auth.isAuthenticated}
-              user={this.props.auth.user.id}
-            />
+          {this.state.display.map((counterArgument) => (
+            <div style={{ marginLeft: `1rem` }}>
+              <CounterArgumentCard
+                key={counterArgument}
+                discussion={this.state.discussion._id}
+                counterArgument={counterArgument}
+                isAuthenticated={this.props.auth.isAuthenticated}
+                user={this.props.auth.user.id}
+                attackRelation={this.state.discussion.attackRelation}
+                attackers={this.attackersOfVictim}
+              />
+            </div>
           ))}
         </div>
       );

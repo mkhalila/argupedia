@@ -143,6 +143,7 @@ router.get("/id", (req, res) => {
     User.findById(discussion.user).then((user) => {
       Argument.findById(discussion.argument).then((argument) => {
         const d = {
+          _id: discussion._id,
           date: discussion.date,
           upvotes: discussion.upvotes,
           downvotes: discussion.downvotes,
@@ -247,6 +248,28 @@ router.post("/counter/downvote", (req, res) => {
     ca.downvotes.push(req.body.user);
     ca.save().then((updated) => {
       res.json(updated);
+    });
+  });
+});
+
+// Retrieve counter argument of a argument
+router.get("/counterArgument", (req, res) => {
+  const argument = req.query.id;
+  CounterArgument.findOne({ argument }).then((ca) => res.json(ca));
+});
+
+router.get("/counterArguments", (req, res) => {
+  CounterArgument.find().then((ca) => res.json(ca));
+});
+
+router.get("/what", (req, res) => {
+  what = req.query.id;
+  console.log(what);
+  CounterArgument.findById(what).then((ca) => {
+    console.log(ca);
+    Argument.findById(what).then((a) => {
+      console.log(a);
+      res.json([]);
     });
   });
 });

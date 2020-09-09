@@ -3,6 +3,8 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logoutUser } from "../actions/authActions";
+import formatDate from "../utils/formatDate";
+import summary from "../utils/summary";
 
 export class CounterArgumentCard extends Component {
   constructor() {
@@ -31,49 +33,14 @@ export class CounterArgumentCard extends Component {
           discussion: this.props.discussion,
           score: ca.upvotes.length - ca.downvotes.length,
           username: ca.user,
-          date: this.formatDate(ca.date),
-          summary: this.summary(ca.argument),
+          date: formatDate(ca.date),
+          summary: summary(ca.argument),
           argument: ca.argument._id,
           criticalQuestion: ca.criticalQuestion,
           scheme: ca.argument.kind,
         });
       });
     //   .catch((err) => console.log(err));
-  }
-
-  formatDate(date) {
-    let fd = new Date(date);
-    fd = `${fd.toLocaleString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}, ${fd.toLocaleDateString([], {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })}`;
-    return fd;
-  }
-
-  summary(argument) {
-    if (argument.kind === "ActionArgument") {
-      return (
-        `In the current circumstances "${argument.R}"; ` +
-        `We should perform action "${argument.A}"; ` +
-        `Which will result in new circumstances "${argument.S}"; ` +
-        `Which will realise goal "${argument.G}"; ` +
-        `Which will promote value "${argument.V}".`
-      );
-    }
-    if (argument.kind === "ExpertOpinionArgument") {
-      return (
-        `"${argument.E}" is an expert in subject domain "${argument.D}" ` +
-        `containing proposition "${argument.A}". ` +
-        `"${argument.E}" asserts that "${argument.A}" is true. ` +
-        `Therefore "${argument.A}" is true.`
-      );
-    }
-    return "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ac dolor sit amet sem sagittis convallis non ac sem. Mauris id sagittis enim. Mauris sed lorem quis ipsum volutpat convallis.";
   }
 
   upvote = (e) => {
@@ -117,7 +84,7 @@ export class CounterArgumentCard extends Component {
       actions = (
         <div className="card-action">
           <Link
-            className="btn"
+            className="btn black-text"
             to={{
               pathname: "/attack",
               state: {
@@ -127,22 +94,48 @@ export class CounterArgumentCard extends Component {
               },
             }}
           >
-            Attack
+            <i className="material-icons">question_answer</i>
           </Link>
           <button
-            className="btn"
+            className="btn white black-text"
             style={{ marginLeft: "1rem" }}
             onClick={this.upvote}
           >
-            +1
+            <i className="material-icons">arrow_upward</i>
           </button>
           <button
-            className="btn"
+            className="btn white black-text"
             style={{ marginLeft: "1rem" }}
             onClick={this.downvote}
           >
-            -1
+            <i className="material-icons">arrow_downward</i>
           </button>
+        </div>
+      );
+    }
+    const attackers = this.props.attackers(
+      this.props.attackRelation,
+      this.props.counterArgument
+    );
+    let attackersDiv;
+    if (attackers.length === 0) {
+      attackersDiv = <div></div>;
+    } else {
+      attackersDiv = (
+        <div>
+          {attackers.map((attacker) => (
+            <div style={{ marginLeft: `1rem` }}>
+              <CounterArgumentCard
+                key={attacker}
+                discussion={this.props.discussion}
+                counterArgument={attacker}
+                isAuthenticated={this.props.isAuthenticated}
+                user={this.props.user}
+                attackRelation={this.props.attackRelation}
+                attackers={this.props.attackers}
+              />
+            </div>
+          ))}
         </div>
       );
     }
@@ -161,6 +154,7 @@ export class CounterArgumentCard extends Component {
           </div>
           {actions}
         </div>
+        {attackersDiv}
       </div>
     );
   }
