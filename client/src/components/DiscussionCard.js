@@ -19,35 +19,58 @@ export class DiscussionCard extends Component {
   }
 
   componentDidMount() {
-    const {
-      upvotes,
-      downvotes,
-      date,
-      user,
-      argument,
-      counterArguments,
-    } = this.props.discussion;
     axios
-      .get("/api/users/id", {
-        params: { id: user },
-      })
+      .get("/api/discussions/id", { params: { id: this.props.discussion._id } })
       .then((res) => {
-        axios
-          .get("/api/arguments/id", {
-            params: { id: argument },
-          })
-          .then((res1) => {
-            this.setState({
-              score: upvotes.length - downvotes.length,
-              date: this.formatDate(date),
-              username: res.data.user.name,
-              summary: this.summary(res1.data.argument),
-              statComments: counterArguments.length + 1,
-              scheme: res1.data.argument.kind,
-              discussion: this.props.discussion._id,
-            });
-          });
+        const discussion = res.data;
+        const {
+          upvotes,
+          downvotes,
+          date,
+          user,
+          argument,
+          counterArguments,
+        } = discussion;
+        this.setState({
+          score: upvotes.length - downvotes.length,
+          date: this.formatDate(date),
+          username: user.name,
+          summary: this.summary(argument),
+          statComments: counterArguments.length + 1,
+          scheme: argument.kind,
+          discussion: discussion._id,
+          argument,
+        });
       });
+    // const {
+    //   upvotes,
+    //   downvotes,
+    //   date,
+    //   user,
+    //   argument,
+    //   counterArguments,
+    // } = this.props.discussion;
+    // axios
+    //   .get("/api/users/id", {
+    //     params: { id: user },
+    //   })
+    //   .then((res) => {
+    //     axios
+    //       .get("/api/arguments/id", {
+    //         params: { id: argument },
+    //       })
+    //       .then((res1) => {
+    //         this.setState({
+    //           score: upvotes.length - downvotes.length,
+    //           date: this.formatDate(date),
+    //           username: res.data.user.name,
+    //           summary: this.summary(res1.data.argument),
+    //           statComments: counterArguments.length + 1,
+    //           scheme: res1.data.argument.kind,
+    //           discussion: this.props.discussion._id,
+    //         });
+    //       });
+    //   });
   }
 
   formatDate(date) {

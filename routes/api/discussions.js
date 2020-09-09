@@ -137,6 +137,30 @@ router.get("/arg", (req, res) => {
   Argument.find().then((discussions) => res.json(discussions));
 });
 
+// Retrieve Discussion by ID
+router.get("/id", (req, res) => {
+  Discussion.findById(req.query.id).then((discussion) => {
+    User.findById(discussion.user).then((user) => {
+      Argument.findById(discussion.argument).then((argument) => {
+        const d = {
+          date: discussion.date,
+          upvotes: discussion.upvotes,
+          downvotes: discussion.downvotes,
+          counterArguments: discussion.counterArguments,
+          attackRelation: discussion.attackRelation,
+        };
+
+        d.user = {
+          _id: user._id,
+          name: user.name,
+        };
+        d.argument = argument;
+        res.json(d);
+      });
+    });
+  });
+});
+
 router.post("/upvote", (req, res) => {
   Discussion.findById(req.body.id).then((discussion) => {
     if (discussion.upvotes.includes(req.body.user)) {
@@ -176,7 +200,6 @@ router.post("/downvote", (req, res) => {
 
 // Retrieve counter argument by ID
 router.get("/counter/id", (req, res) => {
-  console.log("got here");
   CounterArgument.findById(req.query.id).then((counterArgument) => {
     const response = {
       date: counterArgument.date,
