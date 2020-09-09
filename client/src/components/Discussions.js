@@ -27,14 +27,13 @@ export class Discussions extends Component {
             <h4>
               <b>Discussions</b> taking place
             </h4>
-            <div class="row">
+            <div className="row">
               {this.state.discussions.map((discussion) => (
                 <Link
                   to={{
                     pathname: "/discussion",
                     state: {
                       discussion,
-                      cardActions: this.props.cardActions,
                       user: this.props.user,
                     },
                   }}
@@ -43,7 +42,6 @@ export class Discussions extends Component {
                   <DiscussionCard
                     key={discussion._id}
                     discussion={discussion}
-                    cardActions={this.props.cardActions}
                     user={this.props.user}
                   />
                 </Link>

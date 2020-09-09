@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logoutUser } from "../actions/authActions";
 
-export class DiscussionCard extends Component {
+export class CounterArgumentCard extends Component {
   constructor() {
     super();
     this.state = {
@@ -13,41 +13,32 @@ export class DiscussionCard extends Component {
       username: "",
       date: "",
       summary: "",
-      statComments: 0,
+      criticalQuestion: "",
       scheme: "Argument",
+      argument: "",
     };
   }
 
   componentDidMount() {
-    const {
-      upvotes,
-      downvotes,
-      date,
-      user,
-      argument,
-      counterArguments,
-    } = this.props.discussion;
     axios
-      .get("/api/users/id", {
-        params: { id: user },
+      .get("/api/discussions/counter/id", {
+        params: { id: this.props.counterArgument },
       })
       .then((res) => {
-        axios
-          .get("/api/arguments/id", {
-            params: { id: argument },
-          })
-          .then((res1) => {
-            this.setState({
-              score: upvotes.length - downvotes.length,
-              date: this.formatDate(date),
-              username: res.data.user.name,
-              summary: this.summary(res1.data.argument),
-              statComments: counterArguments.length + 1,
-              scheme: res1.data.argument.kind,
-              discussion: this.props.discussion._id,
-            });
-          });
+        console.log(res.data);
+        const ca = res.data;
+        this.setState({
+          discussion: this.props.discussion,
+          score: ca.upvotes.length - ca.downvotes.length,
+          username: ca.user,
+          date: this.formatDate(ca.date),
+          summary: this.summary(ca.argument),
+          argument: ca.argument._id,
+          criticalQuestion: ca.criticalQuestion,
+          scheme: ca.argument.kind,
+        });
       });
+    //   .catch((err) => console.log(err));
   }
 
   formatDate(date) {
@@ -88,12 +79,12 @@ export class DiscussionCard extends Component {
   upvote = (e) => {
     e.preventDefault();
     const payload = {
-      id: this.props.discussion._id,
+      id: this.props.counterArgument,
       user: this.props.user,
     };
     console.log(payload);
     axios
-      .post("api/discussions/upvote", payload)
+      .post("api/discussions/counter/upvote", payload)
       .then((res) => {
         this.setState({
           score: res.data.upvotes.length - res.data.downvotes.length,
@@ -105,11 +96,11 @@ export class DiscussionCard extends Component {
   downvote = (e) => {
     e.preventDefault();
     const payload = {
-      id: this.props.discussion._id,
+      id: this.props.counterArgument,
       user: this.props.user,
     };
     axios
-      .post("api/discussions/downvote", payload)
+      .post("api/discussions/counter/downvote", payload)
       .then((res) => {
         this.setState({
           score: res.data.upvotes.length - res.data.downvotes.length,
@@ -120,26 +111,18 @@ export class DiscussionCard extends Component {
 
   render() {
     let actions;
-    if (this.props.auth.isAuthenticated === false) {
-      actions = (
-        <div className="card-action">
-          <i className="material-icons">question_answer</i>{" "}
-          {this.state.statComments}
-        </div>
-      );
+    if (this.props.isAuthenticated === false) {
+      actions = <div className="card-action"></div>;
     } else {
       actions = (
         <div className="card-action">
-          <i className="material-icons">question_answer</i>{" "}
-          {this.state.statComments}
           <Link
             className="btn"
-            style={{ marginLeft: "1rem" }}
             to={{
               pathname: "/attack",
               state: {
-                discussion: this.props.discussion._id,
-                argument: this.props.discussion.argument,
+                discussion: this.props.discussion,
+                argument: this.props.counterArgument,
                 scheme: this.state.scheme,
               },
             }}
@@ -170,6 +153,9 @@ export class DiscussionCard extends Component {
             <span className="card-title">
               <b>{this.state.score}</b> | <em>{this.state.username}</em>
               <p style={{ fontSize: "60%" }}>{this.state.date}</p>
+              <p>
+                <em>{this.state.criticalQuestion}</em>
+              </p>
             </span>
             <p>{this.state.summary}</p>
           </div>
@@ -186,4 +172,4 @@ const mapStateToProps = (state) => ({
   auth: state.auth,
 });
 
-export default connect(mapStateToProps, { logoutUser })(DiscussionCard);
+export default connect(mapStateToProps, { logoutUser })(CounterArgumentCard);

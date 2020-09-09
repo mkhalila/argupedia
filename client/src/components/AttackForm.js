@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import ActionArgumentForm from "./ActionArgumentForm";
 import axios from "axios";
 import ExpertOpinionArgumentForm from "./ExpertOpinionArgumentForm";
+import { connect } from "react-redux";
+import { logoutUser } from "../actions/authActions";
 
 class AttackForm extends Component {
   constructor() {
@@ -11,8 +13,13 @@ class AttackForm extends Component {
     this.state = {
       argumentValues: {},
       scheme: "Argument",
+      criticalQuestion: "",
       errors: {},
     };
+  }
+
+  componentDidMount() {
+    console.log(this.props.location.state);
   }
 
   updateArgument = (updatedArgument) => {
@@ -26,19 +33,30 @@ class AttackForm extends Component {
   onSubmit = (e) => {
     const payload = {
       user: this.props.auth.user.id,
+      discussion: this.props.location.state.discussion,
+      victim: this.props.location.state.argument,
+      criticalQuestion: this.state.criticalQuestion,
       scheme: this.state.scheme,
       argumentValues: this.state.argumentValues,
     };
-    console.log(this.state.argumentValues);
+    console.log(payload);
     axios
-      .post("/api/discussions", payload)
+      .post("/api/discussions/attack", payload)
       .then((res) => {
+        console.log(res.data);
         this.props.history.push("/dashboard");
       })
       .catch((error) => console.log(error));
   };
 
-  onSelect = (e) => {
+  onSelectCriticalQuestion = (e) => {
+    console.log(e.target.value);
+    this.setState({
+      criticalQuestion: e.target.value,
+    });
+  };
+
+  onSelectScheme = (e) => {
     this.setState({
       scheme: e.target.value,
     });
@@ -49,6 +67,47 @@ class AttackForm extends Component {
     let form = <ActionArgumentForm updateArgument={this.updateArgument} />;
     if (this.state.scheme === "ExpertOpinionArgument") {
       form = <ExpertOpinionArgumentForm updateArgument={this.updateArgument} />;
+    }
+    let criticalQuestion;
+    if (this.props.location.state.scheme === "ActionArgument") {
+      criticalQuestion = (
+        <select
+          style={{ display: "flex" }}
+          onChange={this.onSelectCriticalQuestion}
+        >
+          <option value="" disabled selected>
+            Select Critical Question
+          </option>
+          <option value="Are the believed circumstances true?">
+            Are the believed circumstances true?
+          </option>
+        </select>
+      );
+    } else if (this.props.location.state.scheme === "ExpertOpinionArgument") {
+      criticalQuestion = (
+        <select
+          style={{ display: "flex" }}
+          onChange={this.onSelectCriticalQuestion}
+        >
+          <option value="" disabled selected>
+            Select Critical Question
+          </option>
+          <option value="How credible is this Expert?">
+            How credible is this expert?
+          </option>
+        </select>
+      );
+    } else {
+      criticalQuestion = (
+        <select
+          style={{ display: "flex" }}
+          onChange={this.onSelectCriticalQuestion}
+        >
+          <option value="" disabled selected>
+            Select Critical Question
+          </option>
+        </select>
+      );
     }
     return (
       <div className="container">
@@ -66,8 +125,12 @@ class AttackForm extends Component {
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ac
                 dolor sit amet sem sagittis convallis non ac sem.
               </p>
+              <div className="input-field col s12">{criticalQuestion}</div>
               <div className="input-field col s12">
-                <select style={{ display: "flex" }} onChange={this.onSelect}>
+                <select
+                  style={{ display: "flex" }}
+                  onChange={this.onSelectScheme}
+                >
                   <option value="" disabled selected>
                     Select Argument Scheme
                   </option>
@@ -92,4 +155,8 @@ class AttackForm extends Component {
   }
 }
 
-export default AttackForm;
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps, { logoutUser })(AttackForm);

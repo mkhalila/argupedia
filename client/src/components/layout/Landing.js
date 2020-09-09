@@ -41,7 +41,7 @@ class Landing extends Component {
             </div>
           </div>
         </div>
-        <Discussions cardActions={false} />
+        <Discussions />
       </div>
     );
   }

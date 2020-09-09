@@ -47,7 +47,7 @@ class Dashboard extends Component {
             New Discussion
           </Link>
         </div>
-        <Discussions cardActions={true} user={user.id} />
+        <Discussions user={user.id} />
       </div>
     );
   }
