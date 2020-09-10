@@ -48,29 +48,21 @@ export class DiscussionCard extends Component {
 
   upvote = (e) => {
     e.preventDefault();
-    const payload = {
-      id: this.props.discussion._id,
-      user: this.props.user,
-    };
-    console.log(payload);
-    axios
-      .post("api/discussions/upvote", payload)
-      .then((res) => {
-        this.setState({
-          score: res.data.upvotes.length - res.data.downvotes.length,
-        });
-      })
-      .catch((err) => console.log(err));
+    this.vote("api/discussions/upvote");
   };
 
   downvote = (e) => {
     e.preventDefault();
+    this.vote("api/discussions/downvote");
+  };
+
+  vote = (path) => {
     const payload = {
       id: this.props.discussion._id,
       user: this.props.user,
     };
     axios
-      .post("api/discussions/downvote", payload)
+      .post(path, payload)
       .then((res) => {
         this.setState({
           score: res.data.upvotes.length - res.data.downvotes.length,

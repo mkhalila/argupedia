@@ -45,29 +45,21 @@ export class CounterArgumentCard extends Component {
 
   upvote = (e) => {
     e.preventDefault();
-    const payload = {
-      id: this.props.counterArgument,
-      user: this.props.user,
-    };
-    console.log(payload);
-    axios
-      .post("api/discussions/counter/upvote", payload)
-      .then((res) => {
-        this.setState({
-          score: res.data.upvotes.length - res.data.downvotes.length,
-        });
-      })
-      .catch((err) => console.log(err));
+    this.vote("api/discussions/counter/upvote");
   };
 
   downvote = (e) => {
     e.preventDefault();
+    this.vote("api/discussions/counter/downvote");
+  };
+
+  vote = (path) => {
     const payload = {
       id: this.props.counterArgument,
       user: this.props.user,
     };
     axios
-      .post("api/discussions/counter/downvote", payload)
+      .post(path, payload)
       .then((res) => {
         this.setState({
           score: res.data.upvotes.length - res.data.downvotes.length,
